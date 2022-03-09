@@ -4,7 +4,7 @@ bLIP 12, also known as "Sat Slayer," was a one-day hackathon project built by th
 
 ## Static invoices
 
-One "holy grail" of Bitcoin usability is a static payment "address" without actual address reuse. On the base layer, the challenge is getting a unique address to "push" to. On Lightning, there's no concept of a payment address. A payment is usually an interactive process where the receiver generates a unique "invoice" which is then paid by the sender. Some will understand this as a BOLT11 invoice.
+One "holy grail" of Bitcoin usability is a static payment "address" without actual address reuse. On the base layer the challenge is getting a unique address to "push" to. On Lightning there's no concept of a payment address. A payment is usually an interactive process where the receiver generates a unique "invoice" which is then paid by the sender. Some will understand this as a BOLT11 invoice.
 
 [_BOLT_ 12][bolt12] is a popular and only slightly controversial proposed spec for creating a static "offer." This offer encodes enough information for the sender to request an actual invoice from the receiver. This process uses the Lightning network itself to transmit this information.
 
@@ -12,27 +12,27 @@ By confining itself to the Lightning network, there's no need for an additional 
 
 The joke of "bLIP 12" is to achieve BOLT 12's aims, but to do it ourselves without a major consensus-based spec.
 
-(A ["bLIP"][blip] is a lightweight and only slightly controversial alternative to a "BOLT." bLIPs propose application-level standards to Lightning without changes to the underlying protocol.)
+(A ["bLIP"][blip] is a lightweight alternative to a "BOLT." bLIPs propose application-level standards to Lightning without changes to the underlying protocol.)
 
 (bLIP 12 is not actually a bLIP, it's more of a comment on BOLTS and bLIPS than a serious contender in that space)
 
 ## Subscription payments
 
-One of the standout ideas of BOLT 12, [but was eventually cut][recurrence], is the idea of subscription payments, also known as "recurrence" in the spec. Another one of those "holy grails" of Bitcoin usability.
+One of the standout ideas of BOLT 12 that [was eventually cut][recurrence] is the idea of subscription payments -- also known as "recurrence." This is another of those "holy grails" of Bitcoin usability.
 
-BOLT 12 only described a way for an offer to encode the idea of recurrence. Node implementations will want to create a way for users to authorize a recurring payment once (within parameters defined in the offer). Afterward, they will continue making those payments without ongoing interaction from the user. "Set it and forget it," so to speak.
+BOLT 12 only described a way for an offer to encode the idea of recurrence. Node implementations will want to create a way for users to authorize a recurring payment once (within parameters defined in the offer). Afterward they will continue making those payments without ongoing interaction from the user. "Set it and forget it," so to speak.
 
 ## How bLIP 12 works
 
-So, how can we get static invoices and subscription payments without a BOLT?
+How can we get static invoices and subscription payments without a BOLT?
 
-Well, it turns out the static invoice part is pretty easy: LND already has a feature called [AMP invoices][amp]. There's no BOLT for AMP yet, so it's not a standard across node implementations. But it gets us a static invoice without any of the fancy new protocol requirements of BOLT 12:
+It turns out the static invoice part is pretty easy: LND already has a feature called [AMP invoices][amp]. There's no BOLT for AMP yet, so it's not a standard across node implementations, but it gets us a static invoice without any of the fancy new protocol requirements of BOLT 12:
 
 > Using AMP, it is possible to make payments safely by only knowing the public key of the recipient. It is also possible to create invoices that can be used repeatedly, which can be used to implement traditional subscriptions. Such invoices can also be published without security implications, allowing for use cases such as static donation invoices.
 
 Well, that was easy!
 
-But our idea for subscription or "pull" payments was a lot more involved. At a high level, here's how it works. 
+But our idea for subscription or "pull" payments is a lot more involved. At a high level, here's how it works. 
 
 The sender pays an AMP invoice and includes connection and authorization information in the TLV of the payment. That will allow the _receiver_ to connect directly to the sender node. Now, as long as the receiver stays within the parameters encoded by the sender, they can trigger payments to themselves.
 
@@ -49,7 +49,10 @@ It turns out there are two hard bits to bLIP 12:
 1. The generation of rules for the sender to give to the receiver (the payment puller)
 2. The enforcement of those rules
 
-In LND, those bits can be achieved with a special "macaroon" that encodes the permissions, and a "GRPC interceptor" that enforces them. A macaroon is a decentralized authentication token that is required when accessing an LND node. A GRPC interceptor is middleware that API requests are sent to outsource authentication.
+In LND those bits can be achieved with a special "macaroon" that encodes the permissions and a "GRPC interceptor" that enforces them.
+
+- A macaroon is a decentralized authentication token that is required when accessing an LND node.
+- A GRPC interceptor is middleware that API requests are sent to outsource authentication.
 
 We decided a good follow-up to the Sat Slayer hackathon project would be a "Bake Shop" application to handle these two macaroon-related jobs.
 
@@ -58,15 +61,15 @@ We decided a good follow-up to the Sat Slayer hackathon project would be a "Bake
 Bake Shop has three main parts:
 
 1. A frontend UI where the user can input their desired macaroon restrictions like 
-  1. Amount
-  2. Recurrence interval
-  3. Number of times the payment will recur
+  a. Amount
+  b. Recurrence interval
+  c. Number of times the payment will recur
 2. A backend that
-   1. Bakes the macaroon with these custom caveats
-   2. Is a long-running process that acts as a GRPC interceptor for LND
+   a. Bakes the macaroon with these custom caveats
+   b. Is a long-running process that acts as a GRPC interceptor for LND
 3. A simple "payment puller" demo script that can connect to the payer node and pull payments 
 
-Unlike the feature-incomplete hackathon project, these are all things that we have working code for. It can be found in the [Bake Shop Github repo][bakeshopgithub], with the obvious caveat that this would be an extremely reckless thing to use. The reason why it would be reckless is that the GRPC interception needs to be hardened, tested, and secured. Any potential bug that did not correctly disallow bad payment requests could lead to stolen funds. Examples of this include bugs such as database errors or time conversion problems.
+Unlike the feature-incomplete hackathon project, these are all things that we have working code for. It can be found in the [Bake Shop Github repo][bakeshopgithub] with the obvious caveat that this would be an extremely reckless thing to use. The reason why it would be reckless is that the GRPC interception needs to be hardened, tested, and secured. Any potential bug that did not correctly disallow bad payment requests could lead to stolen funds. Examples of this include bugs such as database errors or time conversion problems.
 
 ## A Bake Shop example
 
@@ -125,14 +128,14 @@ A few important fields are present in this macaroon that are different from the 
 
 This specifies caveats on the macaroon. A caveat is a special condition that limits the functionality the macaroon may have.
 
-- `lnd-custom` tells LND that it is a custom caveat that is not handled by LND itself. LND needs this at the beginning of the caveat so that it knows a handler might be set up to utilize it. 
+- `lnd-custom` tells LND that it is a custom caveat that is not handled by LND itself. LND needs this at the beginning of the caveat so that it knows a interceptor might be set up to utilize it. 
 - `subscribe` tells LND the type of custom caveat that a user might have set up. LND GRPC interceptors must register the type of caveat that they are going to handle. Only requests with the type `subscribe` will be forwarded to our interceptor in the Bakeshop. 
 - `ms:2629800000`  tells our interceptor that the macaroon is valid once every `2629800000` milliseconds. 
 - `amount:5000` tells our interceptor that the amount that can be pulled with this macaroon is `5000` sats per valid request. In combination with a `ms` caveat, this means 5000 sats per `2629800000` ms. 
 - `times:10` tells our interceptor that the maximum amount of times that a valid request may go through is 10. 
 
 
-It's the presence of the caveat that triggers Alice's interceptor to run when Bob connects to her node using this macaroon. Here, the interceptor will check that Bob is only trying 5000 sats, that he hasn't been paid in the past 2629800000 milliseconds, and that he has not pulled a valid payment more than 10 times. 
+It is the presence of the caveat that triggers Alice's interceptor to run when Bob connects to her node using this macaroon. Here the interceptor will check that Bob is only trying to pull 5000 sats, that he hasn't been paid in the past 2629800000 milliseconds, and that he has not pulled a valid payment more than 10 times. 
 
 Another important field that's a bit different than a normal macaroon is: 
 
@@ -148,11 +151,11 @@ Another important field that's a bit different than a normal macaroon is:
     ]
 ```
 
-This specifies certain operations that the macaroon holder can partake in with LND. The `offchain` entity specifies that the offchain type of APIs is available to use. Even if the interceptor did not validate correctly, API calls like `onchain` type operations are forbidden. 
+This specifies certain operations that the macaroon holder can partake in with LND. The `offchain` entity specifies that the offchain APIs are available to use. Even if the interceptor did not validate correctly, API calls that use `onchain` operations are forbidden. 
 
-`read` and `write` are also important. API calls like `SendPayment` need `write` permissions since it is taking a write action. In this case, sending a payment instead of a harmless read like `GetInfo`.
+`read` and `write` are also important. API calls like `SendPayment` need `write` permissions in LND since they require a write action -- in this case, sending a payment.
 
-In the end, this macaroon is all that is required to "log into" a specific LND node directly. There does not need to be any knowledge of who the person is. These macaroons should be treated as authentication tokens and only given out to those authorized to make a payment. Any custom logic can be implemented, it is up to the authors of GRPC Interceptors to handle custom logic.
+In the end, this macaroon is all that is required to "log into" a specific LND node directly. There does not need to be any knowledge of who the person is. These macaroons should be treated as authentication tokens and only given out to those authorized to make a payment. Any custom logic can be implemented; it is up to the authors of GRPC Interceptors to handle custom logic.
 
 ## Additional features
 
@@ -172,7 +175,7 @@ There are a bunch of limitations to the Bake Shop setup and the whole bLIP 12 id
 
 ### 1. Usability for the receiver
 
-The receiver is required to securely store critical information for every payer and to use it repeatedly. While BOLT 12 is trying to reduce the necessity of extra servers, _bLIP 12_ needs them to run an automated process to pull payments. One possibility is to have 3rd party payment pullers direct the funds to the intended recipient. However, there are security and privacy trade-offs that we specify below.
+The receiver is required to securely store critical information for every payer and to use it repeatedly. While BOLT 12 is trying to reduce the necessity of extra servers, _bLIP 12_ needs them to run an automated process to pull payments. One possibility is to have third party payment pullers direct the funds to the intended recipient. However, there are security and privacy trade-offs that we specify below.
 
 ### 2. Usability for the payer
 
@@ -191,13 +194,13 @@ Due to the complexities involved in enforcing custom macaroons, the subscriber n
 
 In the current setup, there's no association between a baked macaroon and a specific payee. If Bob handed the `lndconnect` info to Carol (or was hacked), Alice would have no way of knowing she's paying the wrong recipient.
 
-One potential solution is to embed a destination pubkey in the macaroon's caveats. Alice's GRPC interceptor could validate that the payment is going to that pubkey. This would allow 3rd party Bakeshop payment pullers to exist. Any person with the macaroon can pull the payment as long as they obey the conditions set in the macaroon caveats. If a payment address was also listed in the caveats, a hacker could not send the funds to their node. The worst they could do is fulfill the payment to the destined receiver, which just helps carry out the intended effect.
+One potential solution is to embed a destination pubkey in the macaroon's caveats. Alice's GRPC interceptor could validate that the payment is going to that pubkey. This would allow third party Bakeshop payment pullers to exist. Any person with the macaroon can pull the payment as long as they obey the conditions set in the macaroon caveats. If a payment address was also listed in the caveats, a hacker could not send the funds to their node. The worst they could do is fulfill the payment to the destined receiver, which just helps carry out the intended effect.
 
 This could lead to a website where payment pullers enter the `lndconnect` info they have received from a subscriber. The third-party bakeshop server is the one pulling the payments. That way no server for payment pullers is needed. 
 
 ### 4. Privacy
 
-One privacy trade-off is the fact that the payment puller knows what node the payment is coming from. This does not occur on the Lightning Network today because of onion routing. Payment pullers would know the connection info of the payer and that is not seen by the network either. 
+One privacy trade-off to the Bake Shop is the fact that the payment puller knows what node the payment is coming from. With a typical Lightning Network payment, onion routing hides the sender node. In our case, payment pullers know the connection info of the payer. 
 
 If a third-party Bake Shop were pulling the payments on behalf of the recipient, then they know the connection info and the intended destination as well. If the sender was subscribed to multiple people, this type of aggregative insight is not good.  
 
