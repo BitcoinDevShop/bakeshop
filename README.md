@@ -2,7 +2,7 @@
 
 Bake Shop is an easy way to _dangerously_ and _recklessly_ do subscription payments over Lightning.
 
-All is explained in the [writeup](https://github.com/futurepaul/bakeshop/blob/master/WRITEUP.md)
+All is explained in the [writeup](https://github.com/BitcoinDevShop/bakeshop/blob/master/WRITEUP.md)
 
 ## Dev setup 
 
