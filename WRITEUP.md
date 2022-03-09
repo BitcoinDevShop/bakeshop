@@ -1,3 +1,7 @@
+# Bake Shop - A Lightning Pull Payment Case Study
+
+Authors: Paul Miller, Tony Giorgio
+
 ## bLIP 12: The inspiration
 
 bLIP 12, also known as "Sat Slayer," was a one-day hackathon project built by the authors in late 2021. It turned into a concept of Lightning "pull payments" and node-to-node communication.
