@@ -236,5 +236,5 @@ This project was a fun way to explore the specifics of macaroon caveats and GRPC
 [recurrence]: https://github.com/lightning/bolts/pull/798/commits/2b923a0367c5f9154fcec706e3302cc4658dd889
 [amp]: https://docs.lightning.engineering/lightning-network-tools/lnd/amp
 [satslayerdemo]: https://www.youtube.com/watch?v=c8tEebKEN4Y
-[bakeshopgithub]: https://github.com/futurepaul/bakeshop
+[bakeshopgithub]: https://github.com/BitcoinDevShop/bakeshop
 [lndconnect]: https://github.com/LN-Zap/lndconnect
